@@ -1,0 +1,103 @@
+.services-container {
+  display: flex;
+  min-height: 100vh;
+  background: #f9f9f9;
+  font-family: Arial, sans-serif;
+}
+
+.sidebar {
+  width: 200px;
+  background: #1a1a2e;
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.sidebar button {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  border-radius: 6px;
+  transition: 0.3s;
+}
+
+.active-btn {
+  background: #0f3460;
+  color: white;
+}
+
+.inactive-btn {
+  background: #e6e6e6;
+  color: #333;
+}
+
+.inactive-btn:hover {
+  background: #ccc;
+}
+
+.divider {
+  width: 2px;
+  background: #ddd;
+}
+
+.form-container {
+  flex: 1;
+  padding: 40px;
+}
+
+.form-container h2 {
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.service-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.service-form label {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  color: #444;
+}
+
+.service-form input,
+.service-form textarea {
+  padding: 10px;
+  margin-top: 6px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.service-form input:focus,
+.service-form textarea:focus {
+  outline: none;
+  border-color: #0f3460;
+  box-shadow: 0px 0px 5px rgba(15, 52, 96, 0.3);
+}
+
+.checkbox-label {
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+}
+
+.submit-btn {
+  background: #0f3460;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.submit-btn:hover {
+  background: #16213e;
+}
