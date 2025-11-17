@@ -26,7 +26,22 @@ const Addservice = () => {
     const fetchCountries = async () => {
       try {
         const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/user/getcountries`);
-        if (mounted) setCountries(res.data || []);
+        // normalize response to array of names
+        let data = res.data;
+        // debug log for easier troubleshooting
+        console.debug('fetched countries:', data);
+        let names = [];
+        if (Array.isArray(data)) {
+          if (data.length === 0) names = [];
+          else if (typeof data[0] === 'string') names = data;
+          else names = data.map((d) => (d && typeof d === 'object' ? d.name || '' : String(d))).filter(Boolean);
+        } else if (data && typeof data === 'object') {
+          // in case backend returned an object, try to extract name fields
+          names = Object.values(data).map((v) => (v && v.name) || (typeof v === 'string' ? v : '')).filter(Boolean);
+        } else {
+          names = [];
+        }
+        if (mounted) setCountries(names);
       } catch (err) {
         console.error('Failed to fetch countries', err);
         if (mounted) setCountries([]);

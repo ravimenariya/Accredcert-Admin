@@ -4,7 +4,7 @@ import "./Services.css"; // css import
 import { useNavigate } from "react-router-dom";
 
 const Services = () => {
-  const [selectedCountry, setSelectedCountry] = useState("USA");
+  const [selectedCountry, setSelectedCountry] = useState("All");
   const { services } = useContext(AppContext);
   const navigate = useNavigate();
   const { callservices } = useContext(AppContext);
@@ -84,63 +84,91 @@ const Services = () => {
 
       {/* Main Content */}
       <div className="main-content">
-        {/* Country Filter */}
+        {/* Country Filter - derived from services */}
         <div className="country-filters">
-          <button
-            className={
-              selectedCountry === "USA" ? "filter-btn active" : "filter-btn"
-            }
-            onClick={() => setSelectedCountry("USA")}
-          >
-            United States
-          </button>
-          <button
-            className={
-              selectedCountry === "India" ? "filter-btn active" : "filter-btn"
-            }
-            onClick={() => setSelectedCountry("India")}
-          >
-            India
-          </button>
-          <button
-            className={
-              selectedCountry === "Global" ? "filter-btn active" : "filter-btn"
-            }
-            onClick={() => setSelectedCountry("Global")}
-          >
-            Global Services
-          </button>
+          {(() => {
+            const getCountryName = (s) => {
+              if (!s || s.country === undefined || s.country === null) return "Unknown";
+              if (typeof s.country === "string") return s.country;
+              if (typeof s.country === "object") {
+                if (s.country.name) return s.country.name;
+                if (s.country.country) return s.country.country;
+                return String(s.country);
+              }
+              return String(s.country);
+            };
+
+            const unique = Array.from(
+              new Set(services.map((s) => getCountryName(s) || "Unknown")),
+            );
+            unique.sort();
+            return ["All", ...unique].map((c) => (
+              <button
+                key={c}
+                className={selectedCountry === c ? "filter-btn active" : "filter-btn"}
+                onClick={() => setSelectedCountry(c)}
+              >
+                {c === "All" ? "All Countries" : c}
+              </button>
+            ));
+          })()}
         </div>
 
         {/* Services Grid */}
         <div className="services-grid">
           {services
-            .filter(
-              (s) => s.country.toLowerCase() === selectedCountry.toLowerCase(),
-            )
-            .map((service, idx) => (
-              <div className="service-card" key={idx}>
-                <img src={service.imageUrl} alt={service.title} />
-                <h3>{service.title}</h3>
-                <span className="country-tag">{service.country}</span>
-                <div className="button-group">
-                  <button
-                    onClick={() =>
-                      navigate(`/services/${service._id}`, { state: service })
-                    }
-                    className="edit-btn"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(service._id)}
-                    className="delete-btn"
-                  >
-                    Delete
-                  </button>
+            .filter((s) => {
+              if (selectedCountry === "All") return true;
+              const getCountryName = (item) => {
+                if (!item || item.country === undefined || item.country === null) return "Unknown";
+                if (typeof item.country === "string") return item.country;
+                if (typeof item.country === "object") {
+                  if (item.country.name) return item.country.name;
+                  if (item.country.country) return item.country.country;
+                  return String(item.country);
+                }
+                return String(item.country);
+              };
+              return getCountryName(s).toLowerCase() === selectedCountry.toLowerCase();
+            })
+            .map((service) => {
+              const getCountryName = (item) => {
+                if (!item || item.country === undefined || item.country === null) return "Unknown";
+                if (typeof item.country === "string") return item.country;
+                if (typeof item.country === "object") {
+                  if (item.country.name) return item.country.name;
+                  if (item.country.country) return item.country.country;
+                  return String(item.country);
+                }
+                return String(item.country);
+              };
+
+              const countryLabel = getCountryName(service);
+
+              return (
+                <div className="service-card" key={service._id}>
+                  <img src={service.imageUrl} alt={service.title} />
+                  <h3>{service.title}</h3>
+                  <span className="country-tag">{countryLabel}</span>
+                  <div className="button-group">
+                    <button
+                      onClick={() =>
+                        navigate(`/services/${service._id}`, { state: service })
+                      }
+                      className="edit-btn"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(service._id)}
+                      className="delete-btn"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
         </div>
       </div>
     </div>
