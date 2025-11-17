@@ -4,6 +4,7 @@ import Login from './pages/Login'
 import Services from './pages/Services'
 import Service from './pages/Service'
 import Addservice from './pages/Addservice'
+import Countries from './pages/Countries'
 import Blogs from './pages/Blogs'
 import Blog from './pages/Blog'
 import AddBlogs from './pages/AddBlogs'
@@ -17,6 +18,7 @@ const App = () => {
         <Route path='/services'element={<Services/>}></Route>
         <Route path='/services/:id' element={<Service/>}></Route>
         <Route path='/addservice' element={<Addservice/>}></Route>
+        <Route path='/countries' element={<Countries/>}></Route>
         <Route path='/blogs' element={<Blogs/>}></Route>
         <Route path='/blogs/:id' element={<Blog/>}></Route>
         <Route path='/addblog' element={<AddBlogs/>}></Route>

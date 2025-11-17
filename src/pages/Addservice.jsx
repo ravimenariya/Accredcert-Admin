@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Addservice.css";
 import axios from "axios";
@@ -19,10 +19,27 @@ const Addservice = () => {
 
   const [uploading, setUploading] = useState(false); // 👈 new state
   const [newCountry, setNewCountry] = useState("");
-  // derive unique countries from existing services
-  const uniqueCountries = Array.from(
-    new Set((services || []).map((s) => s.country).filter(Boolean))
-  );
+  const [countries, setCountries] = useState([]);
+
+  useEffect(() => {
+    let mounted = true;
+    const fetchCountries = async () => {
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/user/getcountries`);
+        if (mounted) setCountries(res.data || []);
+      } catch (err) {
+        console.error('Failed to fetch countries', err);
+        if (mounted) setCountries([]);
+      }
+    };
+    fetchCountries();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // derive unique countries from backend-provided canonical list
+  const uniqueCountries = Array.from(new Set((countries || []).filter(Boolean)));
   // if admin is typing a new country, show it at the top of the dropdown
   const displayedCountries = newCountry
     ? [newCountry, ...uniqueCountries.filter((c) => c.toLowerCase() !== newCountry.toLowerCase())]
@@ -61,9 +78,20 @@ const Addservice = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // determine country to send: if sentinel selected, use typed newCountry
+    const rawCountry = formData.country === "__new" ? newCountry.trim() : formData.country;
+    const titleCase = (str) =>
+      String(str || "")
+        .trim()
+        .toLowerCase()
+        .split(/\s+/)
+        .map((w) => (w ? w[0].toUpperCase() + w.slice(1) : ""))
+        .join(" ");
+    const countryToSend = titleCase(rawCountry);
+
     const payload = {
       ...formData,
-      country: formData.country || newCountry,
+      country: countryToSend,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -72,6 +100,18 @@ const Addservice = () => {
       await axios.post(`${import.meta.env.VITE_BACKEND_URL}/admin/addservice`, payload);
       alert("Service added successfully!");
       callservices()
+      // reset form
+      setFormData({
+        title: "",
+        description: "",
+        category: "",
+        country: "",
+        isActive: false,
+        createdAt: "",
+        updatedAt: "",
+        imageUrl: "",
+      });
+      setNewCountry("");
       navigate("/services");
     } catch (err) {
       console.error("Error saving service:", err);
@@ -97,6 +137,7 @@ const Addservice = () => {
         >
           Add Service
         </button>
+        <button onClick={() => navigate('/countries')} className="inactive-btn">Countries</button>
         <button
           onClick={() => {
             navigate("/blogs");
