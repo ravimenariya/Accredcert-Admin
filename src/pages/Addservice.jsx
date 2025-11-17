@@ -19,6 +19,14 @@ const Addservice = () => {
 
   const [uploading, setUploading] = useState(false); // 👈 new state
   const [newCountry, setNewCountry] = useState("");
+  // derive unique countries from existing services
+  const uniqueCountries = Array.from(
+    new Set((services || []).map((s) => s.country).filter(Boolean))
+  );
+  // if admin is typing a new country, show it at the top of the dropdown
+  const displayedCountries = newCountry
+    ? [newCountry, ...uniqueCountries.filter((c) => c.toLowerCase() !== newCountry.toLowerCase())]
+    : uniqueCountries;
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -171,7 +179,8 @@ const Addservice = () => {
               onChange={(e) => {
                 const val = e.target.value;
                 if (val === "__new") {
-                  setFormData({ ...formData, country: "" });
+                  // keep sentinel value so the select shows 'Add new country'
+                  setFormData({ ...formData, country: "__new" });
                 } else {
                   setFormData({ ...formData, country: val });
                   setNewCountry("");
@@ -180,19 +189,16 @@ const Addservice = () => {
               required
             >
               <option value="">-- Select Country --</option>
-              {(services || [])
-                .map((s) => s.country)
-                .filter((c, i, arr) => c && arr.indexOf(c) === i)
-                .map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
+              {displayedCountries.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
               <option value="__new">Add new country</option>
             </select>
           </label>
 
-          {formData.country === "" && (
+          {formData.country === "__new" && (
             <label>
               Add New Country
               <input
