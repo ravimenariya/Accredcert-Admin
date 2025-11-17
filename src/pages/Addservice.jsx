@@ -5,7 +5,7 @@ import axios from "axios";
 import { AppContext } from "../Context";
 const Addservice = () => {
   const navigate = useNavigate();
-  const { callservices } = useContext(AppContext)
+  const { callservices, services } = useContext(AppContext)
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -18,6 +18,7 @@ const Addservice = () => {
   });
 
   const [uploading, setUploading] = useState(false); // 👈 new state
+  const [newCountry, setNewCountry] = useState("");
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -54,6 +55,7 @@ const Addservice = () => {
     e.preventDefault();
     const payload = {
       ...formData,
+      country: formData.country || newCountry,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -163,14 +165,46 @@ const Addservice = () => {
 
           <label>
             Country
-            <input
-              type="text"
+            <select
               name="country"
-              value={formData.country}
-              onChange={handleChange}
+              value={formData.country || ""}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === "__new") {
+                  setFormData({ ...formData, country: "" });
+                } else {
+                  setFormData({ ...formData, country: val });
+                  setNewCountry("");
+                }
+              }}
               required
-            />
+            >
+              <option value="">-- Select Country --</option>
+              {(services || [])
+                .map((s) => s.country)
+                .filter((c, i, arr) => c && arr.indexOf(c) === i)
+                .map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              <option value="__new">Add new country</option>
+            </select>
           </label>
+
+          {formData.country === "" && (
+            <label>
+              Add New Country
+              <input
+                type="text"
+                name="newCountry"
+                value={newCountry}
+                onChange={(e) => setNewCountry(e.target.value)}
+                placeholder="Enter country name"
+                required
+              />
+            </label>
+          )}
 
           <label className="checkbox-label">
             <input
